@@ -1,14 +1,18 @@
 // Import stylesheets
 import './style.css';
 
-class Department {
-  private employees : string[] = [];
-  constructor(private readonly id: string, public name: string) {
+//This abstract class is only for inheritance purposes. It can be instansiated.
+abstract class Department {
+  static fiscalYear = 2023;
+  protected employees : string[] = [];
+  constructor(protected readonly id: string, public name: string) {
   }
 
-  describe(this: Department) {
-    console.log(`Department: (${this.id}): ${this.name}`);
+  static createEmployee(name: string) {
+    return {name: name};
   }
+
+  abstract describe(this: Department): void; 
 
   addEmployee(employee: string) {
     this.employees.push(employee);
@@ -27,22 +31,59 @@ class ITDepartment extends Department {
   constructor(id: string, public admins: string[]) {
     super(id, 'IT');
   }
+
+  describe() {
+    console.log('IT Department - ID: '+ this.id);
+  }
 }
 
 
 class AccountingDepartment extends Department {
-  constructor(id: string, private reports: string[]) {
-    super(id, 'Acconting')
+  private lastReport: string;
+
+  get mostRecentReport() {
+    if (this.lastReport) {
+      return this.lastReport;
+    }
+    throw new Error('No report found!');
   }
+
+  set mostRecentReport(value: string) {
+    if (!value){ throw new Error('Please pass a valid value!'); }
+    this.addReport(value);
+  }
+
+  constructor(id: string, private reports: string[]) {
+    super(id, 'Acconting');
+    this.lastReport = reports[0];
+  }
+
+  //override method
+  describe() {
+    console.log('Accounting department - ID: ' + this.id);
+  }
+
+  //override method
+  addEmployee(name: string) {
+    if (name === 'Max') { return; }
+    this.employees.push(name);
+  }
+
   addReport(text: string) {
     this.reports.push(text);
+    this.lastReport = text;
   }
+
   printReports() {
     console.log(this.reports);
   }
 }
 
+const employee1 = Department.createEmployee('Dion');
+console.log(employee1, Department.fiscalYear);
+
 const it = new ITDepartment('d1', ['Max']);
+
 it.addEmployee('Max');
 it.addEmployee('Manu');
 it.describe();
@@ -50,6 +91,11 @@ it.printEmployeeInformation();
 console.log(it);
 
 const accounting = new AccountingDepartment('d2', []);
+accounting.mostRecentReport = 'Year end report.';
 accounting.addReport('Something went wrong..');
+console.log(accounting.mostRecentReport);
+accounting.addEmployee('Manu');
 accounting.describe();
-console.log(accounting);
+
+//accounting.printReports();
+//console.log(accounting);
