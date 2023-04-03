@@ -40,6 +40,7 @@ class ITDepartment extends Department {
 
 class AccountingDepartment extends Department {
   private lastReport: string;
+  private static instance: AccountingDepartment;
 
   get mostRecentReport() {
     if (this.lastReport) {
@@ -53,9 +54,18 @@ class AccountingDepartment extends Department {
     this.addReport(value);
   }
 
-  constructor(id: string, private reports: string[]) {
+  //Use private for Singleton pattern
+  private constructor(id: string, private reports: string[]) {
     super(id, 'Acconting');
     this.lastReport = reports[0];
+  }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new AccountingDepartment('d2', []);
+    return this.instance;
   }
 
   //override method
@@ -90,7 +100,8 @@ it.describe();
 it.printEmployeeInformation();
 console.log(it);
 
-const accounting = new AccountingDepartment('d2', []);
+//const accounting = new AccountingDepartment('d2', []);
+const accounting = AccountingDepartment.getInstance();
 accounting.mostRecentReport = 'Year end report.';
 accounting.addReport('Something went wrong..');
 console.log(accounting.mostRecentReport);
